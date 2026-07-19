@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Registrations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="config.js"></script>
+<style>
+  :root{
+    --canvas:#EDEFF3; --surface:#FFFFFF; --ink:#14171F; --ink-soft:#565B6B;
+    --pin:#FF4A3D; --pin-dim:#FFE4E1; --teal:#1F8A7D; --teal-dim:#DDF0EC; --line:#C9CDD6;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--canvas); color:var(--ink); font-family:'Inter', sans-serif; min-height:100vh;}
+  .bar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 28px; background:var(--surface); border-bottom:1px solid var(--line);
+  }
+  .bar h1{font-family:'Space Grotesk', sans-serif; font-size:20px; margin:0;}
+  .bar .sub{font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-soft);}
+  #logoutBtn{
+    font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-soft);
+    background:none; border:1px solid var(--line); border-radius:20px; padding:6px 14px; cursor:pointer;
+  }
+
+  .login-wrap{display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;}
+  .login-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:2px;
+    padding:32px; width:100%; max-width:360px;
+  }
+  .login-card h1{font-family:'Space Grotesk', sans-serif; font-size:22px; margin:0 0 20px;}
+  .login-card label{
+    display:block; font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-soft); margin-bottom:6px;
+  }
+  .login-card input{
+    width:100%; padding:11px 12px; margin-bottom:14px; border:1px solid var(--line);
+    border-radius:2px; font-size:14px; background:var(--canvas);
+  }
+  .login-card button{
+    width:100%; padding:12px; background:var(--ink); color:#fff; border:none;
+    border-radius:2px; font-weight:600; cursor:pointer;
+  }
+  .login-error{color:var(--pin); font-size:13px; margin:-6px 0 12px;}
+
+  main{padding:28px; max-width:960px; margin:0 auto;}
+  .tabs{display:flex; gap:8px; margin-bottom:20px;}
+  .tab{
+    font-family:'JetBrains Mono', monospace; font-size:12px; padding:8px 14px;
+    border:1px solid var(--line); border-radius:20px; cursor:pointer; color:var(--ink-soft); background:var(--surface);
+  }
+  .tab.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+
+  .row{
+    display:flex; gap:16px; align-items:flex-start;
+    background:var(--surface); border:1px solid var(--line); border-radius:2px;
+    padding:16px; margin-bottom:10px;
+  }
+  .row .thumb{
+    width:64px; height:64px; border:1px solid var(--line); border-radius:2px;
+    background:var(--canvas); display:flex; align-items:center; justify-content:center;
+    font-size:10px; color:var(--ink-soft); text-align:center; overflow:hidden; flex-shrink:0; cursor:pointer;
+  }
+  .row .thumb img{width:100%; height:100%; object-fit:cover;}
+  .row .info{flex:1; min-width:0;}
+  .row .name{font-weight:600; margin:0 0 2px;}
+  .row .meta{font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-soft); margin:0;}
+  .row .actions{display:flex; flex-direction:column; gap:8px; align-items:flex-end;}
+  .confirm-btn{
+    font-family:'Inter', sans-serif; font-size:13px; font-weight:600; padding:8px 14px;
+    background:var(--teal); color:#fff; border:none; border-radius:2px; cursor:pointer; white-space:nowrap;
+  }
+  .confirm-btn:disabled{background:var(--line); cursor:not-allowed;}
+  .badge{
+    font-family:'JetBrains Mono', monospace; font-size:11px; padding:4px 10px; border-radius:20px;
+  }
+  .badge.pending{background:var(--pin-dim); color:var(--pin);}
+  .badge.confirmed{background:var(--teal-dim); color:var(--teal);}
+  .empty{color:var(--ink-soft); font-size:14px; padding:40px 0; text-align:center;}
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+
+<div id="loginView" class="login-wrap">
+  <form class="login-card" id="loginForm">
+    <h1>Admin sign in</h1>
+    <label>Email</label>
+    <input type="email" id="loginEmail" required>
+    <label>Password</label>
+    <input type="password" id="loginPassword" required>
+    <p class="login-error hidden" id="loginError"></p>
+    <button type="submit">Sign in</button>
+  </form>
+</div>
+
+<div id="dashView" class="hidden">
+  <div class="bar">
+    <div>
+      <h1 id="dashTitle"></h1>
+      <p class="sub">Registrations</p>
+    </div>
+    <button id="logoutBtn">Sign out</button>
+  </div>
+  <main>
+    <div class="tabs">
+      <div class="tab active" data-tab="pending">Pending</div>
+      <div class="tab" data-tab="confirmed">Confirmed</div>
+      <div class="tab" data-tab="all">All</div>
+    </div>
+    <div id="list"></div>
+  </main>
+</div>
+
+<script>
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  document.getElementById('dashTitle').textContent = CLASS_NAME;
+
+  const loginView = document.getElementById('loginView');
+  const dashView = document.getElementById('dashView');
+  let currentTab = 'pending';
+  let rows = [];
+
+  function hide(el){ el.classList.add('hidden'); }
+  function show(el){ el.classList.remove('hidden'); }
+
+  async function checkSession() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      hide(loginView); show(dashView);
+      loadRegistrations();
+    } else {
+      show(loginView); hide(dashView);
+    }
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errorEl = document.getElementById('loginError');
+    hide(errorEl);
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      errorEl.textContent = error.message;
+      show(errorEl);
+      return;
+    }
+    checkSession();
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    checkSession();
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentTab = tab.dataset.tab;
+      render();
+    });
+  });
+
+  async function loadRegistrations() {
+    const { data, error } = await supabase
+      .from('registrations')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      document.getElementById('list').innerHTML = `<p class="empty">Couldn't load registrations: ${error.message}</p>`;
+      return;
+    }
+    rows = data;
+    render();
+  }
+
+  async function render() {
+    const list = document.getElementById('list');
+    const filtered = rows.filter(r => currentTab === 'all' ? true : r.status === currentTab);
+    if (filtered.length === 0) {
+      list.innerHTML = `<p class="empty">Nothing here yet.</p>`;
+      return;
+    }
+
+    list.innerHTML = filtered.map(r => `
+      <div class="row" data-id="${r.id}">
+        <div class="thumb" data-path="${r.receipt_path || ''}">${r.receipt_path ? 'Loading…' : 'No receipt'}</div>
+        <div class="info">
+          <p class="name">${escapeHtml(r.full_name)}</p>
+          <p class="meta">${escapeHtml(r.email)} · ${escapeHtml(r.phone)}</p>
+          <p class="meta">${escapeHtml(r.location)} · ${escapeHtml(r.skill_level)} · Figma: ${r.figma_familiar ? 'Yes' : 'No'}</p>
+          <p class="meta">${new Date(r.created_at).toLocaleString()}</p>
+          ${r.learning_goals ? `<p class="meta">"${escapeHtml(r.learning_goals)}"</p>` : ''}
+        </div>
+        <div class="actions">
+          <span class="badge ${r.status}">${r.status}</span>
+          ${r.status === 'pending'
+            ? `<button class="confirm-btn" data-id="${r.id}">Confirm</button>`
+            : ''}
+        </div>
+      </div>
+    `).join('');
+
+    // load thumbnails
+    list.querySelectorAll('.thumb').forEach(async (thumbEl) => {
+      const path = thumbEl.dataset.path;
+      if (!path) return;
+      const { data, error } = await supabase.storage.from('receipts').createSignedUrl(path, 300);
+      if (error || !data) return;
+      thumbEl.innerHTML = `<img src="${data.signedUrl}" alt="receipt">`;
+      thumbEl.onclick = () => window.open(data.signedUrl, '_blank');
+    });
+
+    list.querySelectorAll('.confirm-btn').forEach(btn => {
+      btn.addEventListener('click', () => confirmRegistration(btn.dataset.id, btn));
+    });
+  }
+
+  async function confirmRegistration(id, btn) {
+    btn.disabled = true;
+    btn.textContent = 'Confirming…';
+
+    const row = rows.find(r => r.id === id);
+
+    const { error } = await supabase
+      .from('registrations')
+      .update({ status: 'confirmed', confirmed_at: new Date().toISOString() })
+      .eq('id', id);
+
+    if (error) {
+      alert('Could not confirm: ' + error.message);
+      btn.disabled = false;
+      btn.textContent = 'Confirm';
+      return;
+    }
+
+    try {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_CONFIRM_TEMPLATE_ID, {
+        to_email: row.email,
+        to_name: row.full_name,
+        class_name: CLASS_NAME,
+      });
+    } catch (emailErr) {
+      alert('Confirmed, but the email failed to send: ' + (emailErr.text || emailErr.message || emailErr));
+    }
+
+    row.status = 'confirmed';
+    row.confirmed_at = new Date().toISOString();
+    render();
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    }[c]));
+  }
+
+  checkSession();
+</script>
+</body>
+</html>
