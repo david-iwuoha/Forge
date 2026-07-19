@@ -1047,15 +1047,8 @@
           to_name: payload.full_name,
           class_name: CLASS_NAME,
         });
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_ADMIN_TEMPLATE_ID, {
-          to_email: ADMIN_EMAIL,
-          student_name: payload.full_name,
-          student_email: payload.email,
-          student_phone: payload.phone,
-          dashboard_url: ADMIN_DASHBOARD_URL,
-        });
       } catch (emailErr) {
-        // Registration is already saved even if an email fails to send.
+        // Registration is already saved even if the email fails to send.
       }
 
       closeRegModal();
