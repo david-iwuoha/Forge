@@ -4,89 +4,182 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin — Registrations</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="config.js"></script>
 <style>
   :root{
-    --canvas:#EDEFF3; --surface:#FFFFFF; --ink:#14171F; --ink-soft:#565B6B;
-    --pin:#FF4A3D; --pin-dim:#FFE4E1; --teal:#1F8A7D; --teal-dim:#DDF0EC; --line:#C9CDD6;
+    --navy:#1A1A2E;
+    --navy-soft:#232342;
+    --teal:#0A7E78;
+    --teal-deep:#086b66;
+    --teal-light:#D0F0EE;
+    --off-white:#F4F6F8;
+    --orange:#F97316;
+    --white:#FFFFFF;
+    --danger:#D14343;
+    --danger-light:#FBE4E4;
+    --line:#E7EBEE;
+    --ink-muted:#5B6570;
+    --shadow: 0 20px 50px -20px rgba(10,20,30,0.25);
   }
   *{box-sizing:border-box;}
-  body{margin:0; background:var(--canvas); color:var(--ink); font-family:'Inter', sans-serif; min-height:100vh;}
-  .bar{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:18px 28px; background:var(--surface); border-bottom:1px solid var(--line);
-  }
-  .bar h1{font-family:'Space Grotesk', sans-serif; font-size:20px; margin:0;}
-  .bar .sub{font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-soft);}
-  #logoutBtn{
-    font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-soft);
-    background:none; border:1px solid var(--line); border-radius:20px; padding:6px 14px; cursor:pointer;
-  }
+  body{margin:0; background:var(--off-white); color:var(--navy); font-family:'Inter',sans-serif; min-height:100vh;}
+  .hidden{display:none !important;}
 
-  .login-wrap{display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;}
+  /* Login */
+  .login-wrap{
+    display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;
+    background:var(--navy);
+  }
   .login-card{
-    background:var(--surface); border:1px solid var(--line); border-radius:2px;
-    padding:32px; width:100%; max-width:360px;
+    background:#fff;border-radius:24px;padding:36px;width:100%;max-width:380px;box-shadow:var(--shadow);
   }
-  .login-card h1{font-family:'Space Grotesk', sans-serif; font-size:22px; margin:0 0 20px;}
-  .login-card label{
-    display:block; font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-soft); margin-bottom:6px;
-  }
+  .login-logo{display:flex;align-items:center;gap:10px;margin-bottom:22px;}
+  .login-logo img{width:34px;height:34px;object-fit:contain;}
+  .login-logo span{font-family:'DM Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;}
+  .login-card h1{font-family:'DM Sans',sans-serif;font-weight:800;font-size:1.3rem;margin:0 0 20px;color:var(--navy);}
+  .login-card label{display:block;font-family:'Inter',sans-serif;font-weight:600;font-size:.85rem;color:var(--navy);margin-bottom:6px;}
   .login-card input{
-    width:100%; padding:11px 12px; margin-bottom:14px; border:1px solid var(--line);
-    border-radius:2px; font-size:14px; background:var(--canvas);
+    width:100%;padding:12px 14px;margin-bottom:16px;border:1px solid var(--line);
+    border-radius:12px;font-size:.95rem;background:var(--off-white);font-family:'Inter',sans-serif;
   }
+  .login-card input:focus{outline:2px solid var(--teal);outline-offset:1px;background:#fff;}
   .login-card button{
-    width:100%; padding:12px; background:var(--ink); color:#fff; border:none;
-    border-radius:2px; font-weight:600; cursor:pointer;
+    width:100%;padding:13px;background:var(--orange);color:#fff;border:none;
+    border-radius:100px;font-weight:700;font-size:.95rem;cursor:pointer;font-family:'Inter',sans-serif;
   }
-  .login-error{color:var(--pin); font-size:13px; margin:-6px 0 12px;}
+  .login-card button:hover{background:#e2650f;}
+  .login-error{color:var(--danger);font-size:.85rem;margin:-8px 0 12px;}
 
-  main{padding:28px; max-width:960px; margin:0 auto;}
-  .tabs{display:flex; gap:8px; margin-bottom:20px;}
+  /* Top bar */
+  .bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 28px;background:var(--navy);color:#fff;
+  }
+  .bar-brand{display:flex;align-items:center;gap:10px;}
+  .bar-brand img{width:30px;height:30px;object-fit:contain;}
+  .bar-brand span{font-family:'DM Sans',sans-serif;font-weight:800;font-size:1.05rem;}
+  .bar-brand small{display:block;font-size:.68rem;color:var(--teal-light);letter-spacing:.05em;font-weight:500;}
+  #logoutBtn{
+    font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;color:#fff;
+    background:none;border:1.5px solid rgba(255,255,255,.28);border-radius:100px;padding:8px 16px;cursor:pointer;
+  }
+  #logoutBtn:hover{border-color:#fff;}
+
+  main{padding:28px;max-width:1180px;margin:0 auto;}
+
+  /* Tabs */
+  .tabs{display:flex;gap:8px;margin-bottom:20px;}
   .tab{
-    font-family:'JetBrains Mono', monospace; font-size:12px; padding:8px 14px;
-    border:1px solid var(--line); border-radius:20px; cursor:pointer; color:var(--ink-soft); background:var(--surface);
+    font-family:'Inter',sans-serif;font-weight:600;font-size:.85rem;padding:9px 18px;
+    border:1px solid var(--line);border-radius:100px;cursor:pointer;color:var(--ink-muted);background:#fff;
   }
-  .tab.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
 
-  .row{
-    display:flex; gap:16px; align-items:flex-start;
-    background:var(--surface); border:1px solid var(--line); border-radius:2px;
-    padding:16px; margin-bottom:10px;
+  /* Table */
+  .table-wrap{
+    background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);
   }
-  .row .thumb{
-    width:64px; height:64px; border:1px solid var(--line); border-radius:2px;
-    background:var(--canvas); display:flex; align-items:center; justify-content:center;
-    font-size:10px; color:var(--ink-soft); text-align:center; overflow:hidden; flex-shrink:0; cursor:pointer;
+  table{width:100%;border-collapse:collapse;font-size:.88rem;}
+  thead th{
+    background:var(--teal-light);color:var(--navy);text-align:left;
+    font-family:'Inter',sans-serif;font-weight:700;font-size:.76rem;letter-spacing:.03em;text-transform:uppercase;
+    padding:12px 14px;white-space:nowrap;border-bottom:1px solid var(--line);
   }
-  .row .thumb img{width:100%; height:100%; object-fit:cover;}
-  .row .info{flex:1; min-width:0;}
-  .row .name{font-weight:600; margin:0 0 2px;}
-  .row .meta{font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-soft); margin:0;}
-  .row .actions{display:flex; flex-direction:column; gap:8px; align-items:flex-end;}
-  .confirm-btn{
-    font-family:'Inter', sans-serif; font-size:13px; font-weight:600; padding:8px 14px;
-    background:var(--teal); color:#fff; border:none; border-radius:2px; cursor:pointer; white-space:nowrap;
+  tbody td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--navy);}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:var(--off-white);}
+  .cell-name{font-weight:700;}
+  .cell-muted{color:var(--ink-muted);font-size:.82rem;}
+  .cell-goals{max-width:220px;white-space:normal;color:var(--ink-muted);font-size:.82rem;}
+
+  .thumb{
+    width:52px;height:52px;border:1px solid var(--line);border-radius:10px;background:var(--off-white);
+    display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--ink-muted);
+    text-align:center;overflow:hidden;cursor:pointer;
   }
-  .confirm-btn:disabled{background:var(--line); cursor:not-allowed;}
-  .badge{
-    font-family:'JetBrains Mono', monospace; font-size:11px; padding:4px 10px; border-radius:20px;
+  .thumb img{width:100%;height:100%;object-fit:cover;}
+
+  .badge{font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;padding:5px 12px;border-radius:100px;white-space:nowrap;}
+  .badge.pending{background:#FFF1E6;color:var(--orange);}
+  .badge.confirmed{background:var(--teal-light);color:var(--teal-deep);}
+
+  .row-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
+  .confirm-btn, .delete-btn{
+    font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;padding:7px 13px;
+    border-radius:100px;cursor:pointer;white-space:nowrap;border:none;
   }
-  .badge.pending{background:var(--pin-dim); color:var(--pin);}
-  .badge.confirmed{background:var(--teal-dim); color:var(--teal);}
-  .empty{color:var(--ink-soft); font-size:14px; padding:40px 0; text-align:center;}
-  .hidden{display:none;}
+  .confirm-btn{background:var(--teal);color:#fff;}
+  .confirm-btn:hover{background:var(--teal-deep);}
+  .confirm-btn:disabled{background:var(--line);color:var(--ink-muted);cursor:not-allowed;}
+  .delete-btn{background:none;color:var(--danger);border:1.5px solid var(--danger-light);}
+  .delete-btn:hover{background:var(--danger-light);}
+
+  .empty{color:var(--ink-muted);font-size:.9rem;padding:50px 0;text-align:center;}
+
+  /* Delete confirmation modal */
+  #deleteOverlay{
+    position:fixed;inset:0;z-index:200;background:rgba(26,26,46,.62);backdrop-filter:blur(6px);
+    display:flex;align-items:center;justify-content:center;padding:20px;
+    opacity:0;pointer-events:none;transition:opacity .3s ease;
+  }
+  #deleteOverlay.open{opacity:1;pointer-events:auto;}
+  #deleteModal{
+    background:#fff;border-radius:20px;width:100%;max-width:380px;padding:26px;box-shadow:var(--shadow);
+    transform:translateY(20px) scale(.97);opacity:0;transition:transform .35s cubic-bezier(.16,1,.3,1), opacity .3s ease;
+  }
+  #deleteOverlay.open #deleteModal{transform:translateY(0) scale(1);opacity:1;}
+  #deleteModal h3{font-family:'DM Sans',sans-serif;font-weight:800;font-size:1.15rem;margin:0 0 8px;color:var(--navy);}
+  #deleteModal p{font-size:.9rem;color:var(--ink-muted);margin:0 0 20px;}
+  .del-actions{display:flex;gap:10px;}
+  .del-actions button{
+    flex:1;padding:11px;border-radius:100px;font-weight:700;font-size:.87rem;cursor:pointer;font-family:'Inter',sans-serif;
+  }
+  #delCancelBtn{background:none;border:1.5px solid var(--line);color:var(--navy);}
+  #delCancelBtn:hover{border-color:var(--navy);}
+  #delConfirmBtn{background:var(--danger);border:none;color:#fff;}
+  #delConfirmBtn:hover{background:#b53535;}
+  #delConfirmBtn:disabled{background:var(--line);color:var(--ink-muted);cursor:not-allowed;}
+
+  @media (max-width:900px){
+    main{padding:16px;}
+    .table-wrap{overflow-x:auto;}
+    table{min-width:900px;}
+  }
+
+  #adminToast{
+    position:fixed;bottom:24px;right:24px;left:auto;z-index:300;
+    background:var(--navy);color:#fff;border-radius:14px;padding:16px 20px;
+    box-shadow:var(--shadow);max-width:320px;font-size:.9rem;font-family:'Inter',sans-serif;
+    display:flex;gap:12px;align-items:flex-start;
+    transform:translateY(20px);opacity:0;pointer-events:none;transition:transform .3s ease, opacity .3s ease;
+  }
+  #adminToast.show{transform:translateY(0);opacity:1;}
+  #adminToast .dot{width:10px;height:10px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:5px;}
+  #adminToast.error .dot{background:var(--danger);}
+  @media (max-width:480px){
+    #adminToast{left:16px;right:16px;bottom:16px;max-width:none;}
+  }
+
+  @media (max-width:480px){
+    .bar{padding:14px 16px;}
+    .bar-brand span{font-size:.95rem;}
+    #logoutBtn{padding:7px 12px;font-size:.78rem;}
+    .login-card{padding:26px 22px;}
+    .tabs{flex-wrap:wrap;}
+    #deleteModal{padding:22px;}
+  }
 </style>
 </head>
 <body>
 
 <div id="loginView" class="login-wrap">
   <form class="login-card" id="loginForm">
+    <div class="login-logo"><img src="assets/logo.png" alt=""><span>Forge Academy</span></div>
     <h1>Admin sign in</h1>
     <label>Email</label>
     <input type="email" id="loginEmail" required>
@@ -99,9 +192,12 @@
 
 <div id="dashView" class="hidden">
   <div class="bar">
-    <div>
-      <h1 id="dashTitle"></h1>
-      <p class="sub">Registrations</p>
+    <div class="bar-brand">
+      <img src="assets/logo.png" alt="">
+      <div>
+        <span id="dashTitle"></span>
+        <small>Registrations dashboard</small>
+      </div>
     </div>
     <button id="logoutBtn">Sign out</button>
   </div>
@@ -111,9 +207,41 @@
       <div class="tab" data-tab="confirmed">Confirmed</div>
       <div class="tab" data-tab="all">All</div>
     </div>
-    <div id="list"></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Contact</th>
+            <th>Location</th>
+            <th>Skill level</th>
+            <th>Figma</th>
+            <th>Learning goals</th>
+            <th>Receipt</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div id="emptyState" class="empty hidden">Nothing here yet.</div>
+    </div>
   </main>
 </div>
+
+<div id="deleteOverlay">
+  <div id="deleteModal" role="dialog" aria-modal="true">
+    <h3>Delete this registration?</h3>
+    <p id="deleteModalText">This will permanently remove their details and receipt. This can't be undone.</p>
+    <div class="del-actions">
+      <button id="delCancelBtn" type="button">Cancel</button>
+      <button id="delConfirmBtn" type="button">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="adminToast"><span class="dot"></span><span id="adminToastText"></span></div>
 
 <script>
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -124,6 +252,7 @@
   const dashView = document.getElementById('dashView');
   let currentTab = 'pending';
   let rows = [];
+  let pendingDeleteId = null;
 
   function hide(el){ el.classList.add('hidden'); }
   function show(el){ el.classList.remove('hidden'); }
@@ -138,6 +267,14 @@
     }
   }
 
+  function showToast(text, isError){
+    const toast = document.getElementById('adminToast');
+    document.getElementById('adminToastText').textContent = text;
+    toast.classList.toggle('error', !!isError);
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 5000);
+  }
+
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim();
@@ -145,10 +282,18 @@
     const errorEl = document.getElementById('loginError');
     hide(errorEl);
 
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      showToast('That email address doesn\'t look valid.', true);
+      return;
+    }
+
     const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
     if (error) {
-      errorEl.textContent = error.message;
-      show(errorEl);
+      const message = /invalid login credentials/i.test(error.message)
+        ? 'Incorrect email or password.'
+        : error.message;
+      showToast(message, true);
       return;
     }
     checkSession();
@@ -174,42 +319,50 @@
       .select('*')
       .order('created_at', { ascending: false });
     if (error) {
-      document.getElementById('list').innerHTML = `<p class="empty">Couldn't load registrations: ${error.message}</p>`;
+      document.getElementById('tableBody').innerHTML =
+        `<tr><td colspan="10" class="empty">Couldn't load registrations: ${escapeHtml(error.message)}</td></tr>`;
       return;
     }
     rows = data;
     render();
   }
 
-  async function render() {
-    const list = document.getElementById('list');
+  function render() {
+    const tbody = document.getElementById('tableBody');
+    const emptyState = document.getElementById('emptyState');
     const filtered = rows.filter(r => currentTab === 'all' ? true : r.status === currentTab);
+
     if (filtered.length === 0) {
-      list.innerHTML = `<p class="empty">Nothing here yet.</p>`;
+      tbody.innerHTML = '';
+      show(emptyState);
       return;
     }
+    hide(emptyState);
 
-    list.innerHTML = filtered.map(r => `
-      <div class="row" data-id="${r.id}">
-        <div class="thumb" data-path="${r.receipt_path || ''}">${r.receipt_path ? 'Loading…' : 'No receipt'}</div>
-        <div class="info">
-          <p class="name">${escapeHtml(r.full_name)}</p>
-          <p class="meta">${escapeHtml(r.email)} · ${escapeHtml(r.phone)}</p>
-          <p class="meta">${escapeHtml(r.location)} · ${escapeHtml(r.skill_level)} · Figma: ${r.figma_familiar ? 'Yes' : 'No'}</p>
-          <p class="meta">${new Date(r.created_at).toLocaleString()}</p>
-          ${r.learning_goals ? `<p class="meta">"${escapeHtml(r.learning_goals)}"</p>` : ''}
-        </div>
-        <div class="actions">
-          <span class="badge ${r.status}">${r.status}</span>
-          ${r.status === 'pending'
-            ? `<button class="confirm-btn" data-id="${r.id}">Confirm</button>`
-            : ''}
-        </div>
-      </div>
+    tbody.innerHTML = filtered.map(r => `
+      <tr data-id="${r.id}">
+        <td class="cell-name">${escapeHtml(r.full_name)}</td>
+        <td>
+          <div>${escapeHtml(r.email)}</div>
+          <div class="cell-muted">${escapeHtml(r.phone)}</div>
+        </td>
+        <td>${escapeHtml(r.location)}</td>
+        <td>${escapeHtml(r.skill_level)}</td>
+        <td>${r.figma_familiar ? 'Yes' : 'No'}</td>
+        <td class="cell-goals">${r.learning_goals ? escapeHtml(r.learning_goals) : '—'}</td>
+        <td><div class="thumb" data-path="${r.receipt_path || ''}">${r.receipt_path ? 'Loading…' : 'None'}</div></td>
+        <td><span class="badge ${r.status}">${r.status}</span></td>
+        <td class="cell-muted">${new Date(r.created_at).toLocaleDateString()}</td>
+        <td>
+          <div class="row-actions">
+            ${r.status === 'pending' ? `<button class="confirm-btn" data-id="${r.id}">Confirm</button>` : ''}
+            <button class="delete-btn" data-id="${r.id}" data-name="${escapeHtml(r.full_name)}">Delete</button>
+          </div>
+        </td>
+      </tr>
     `).join('');
 
-    // load thumbnails
-    list.querySelectorAll('.thumb').forEach(async (thumbEl) => {
+    tbody.querySelectorAll('.thumb').forEach(async (thumbEl) => {
       const path = thumbEl.dataset.path;
       if (!path) return;
       const { data, error } = await supabaseClient.storage.from('receipts').createSignedUrl(path, 300);
@@ -218,8 +371,12 @@
       thumbEl.onclick = () => window.open(data.signedUrl, '_blank');
     });
 
-    list.querySelectorAll('.confirm-btn').forEach(btn => {
+    tbody.querySelectorAll('.confirm-btn').forEach(btn => {
       btn.addEventListener('click', () => confirmRegistration(btn.dataset.id, btn));
+    });
+
+    tbody.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => openDeleteModal(btn.dataset.id, btn.dataset.name));
     });
   }
 
@@ -255,6 +412,51 @@
     row.confirmed_at = new Date().toISOString();
     render();
   }
+
+  // Delete flow
+  const deleteOverlay = document.getElementById('deleteOverlay');
+  const deleteModalText = document.getElementById('deleteModalText');
+  const delConfirmBtn = document.getElementById('delConfirmBtn');
+  const delCancelBtn = document.getElementById('delCancelBtn');
+
+  function openDeleteModal(id, name) {
+    pendingDeleteId = id;
+    deleteModalText.textContent = `This will permanently remove ${name}'s details and receipt. This can't be undone.`;
+    deleteOverlay.classList.add('open');
+  }
+  function closeDeleteModal() {
+    deleteOverlay.classList.remove('open');
+    pendingDeleteId = null;
+  }
+  delCancelBtn.addEventListener('click', closeDeleteModal);
+  deleteOverlay.addEventListener('click', (e) => { if (e.target === deleteOverlay) closeDeleteModal(); });
+
+  delConfirmBtn.addEventListener('click', async () => {
+    if (!pendingDeleteId) return;
+    const id = pendingDeleteId;
+    const row = rows.find(r => r.id === id);
+
+    delConfirmBtn.disabled = true;
+    delConfirmBtn.textContent = 'Deleting…';
+
+    if (row && row.receipt_path) {
+      await supabaseClient.storage.from('receipts').remove([row.receipt_path]);
+    }
+
+    const { error } = await supabaseClient.from('registrations').delete().eq('id', id);
+
+    delConfirmBtn.disabled = false;
+    delConfirmBtn.textContent = 'Delete';
+
+    if (error) {
+      alert('Could not delete: ' + error.message);
+      return;
+    }
+
+    rows = rows.filter(r => r.id !== id);
+    closeDeleteModal();
+    render();
+  });
 
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, c => ({
