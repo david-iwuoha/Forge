@@ -1,7 +1,7 @@
 // ── Fill these in after you set up Supabase and EmailJS. ──
 // Supabase: Project Settings → API
 const SUPABASE_URL = "https://mfmnobjefrxfwkpehkxg.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mbW5vYmplZnJ4ZndrcGVoa3hnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0OTA0MzYsImV4cCI6MjEwMDA2NjQzNn0.lVSIE07x5ij4QBq5NDvz8iyel_TTg3iVr1AG-ql44as";
+const SUPABASE_ANON_KEY = "sb_publishable_WjYNoF7GrlCT62wMVwYOuA_4euGzaSb";
 
 // EmailJS: emailjs.com → Account → General (Public Key), Email Services, Email Templates
 const EMAILJS_PUBLIC_KEY = "Q_QLV8arkVGv2sOl1";
