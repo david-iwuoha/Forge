@@ -116,7 +116,7 @@
 </div>
 
 <script>
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
   document.getElementById('dashTitle').textContent = CLASS_NAME;
 
@@ -129,7 +129,7 @@
   function show(el){ el.classList.remove('hidden'); }
 
   async function checkSession() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
       hide(loginView); show(dashView);
       loadRegistrations();
@@ -145,7 +145,7 @@
     const errorEl = document.getElementById('loginError');
     hide(errorEl);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
     if (error) {
       errorEl.textContent = error.message;
       show(errorEl);
@@ -155,7 +155,7 @@
   });
 
   document.getElementById('logoutBtn').addEventListener('click', async () => {
-    await supabase.auth.signOut();
+    await supabaseClient.auth.signOut();
     checkSession();
   });
 
@@ -169,7 +169,7 @@
   });
 
   async function loadRegistrations() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('registrations')
       .select('*')
       .order('created_at', { ascending: false });
@@ -212,7 +212,7 @@
     list.querySelectorAll('.thumb').forEach(async (thumbEl) => {
       const path = thumbEl.dataset.path;
       if (!path) return;
-      const { data, error } = await supabase.storage.from('receipts').createSignedUrl(path, 300);
+      const { data, error } = await supabaseClient.storage.from('receipts').createSignedUrl(path, 300);
       if (error || !data) return;
       thumbEl.innerHTML = `<img src="${data.signedUrl}" alt="receipt">`;
       thumbEl.onclick = () => window.open(data.signedUrl, '_blank');
@@ -229,7 +229,7 @@
 
     const row = rows.find(r => r.id === id);
 
-    const { error } = await supabase
+    const { error } = await supabaseClient
       .from('registrations')
       .update({ status: 'confirmed', confirmed_at: new Date().toISOString() })
       .eq('id', id);

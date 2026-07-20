@@ -1008,7 +1008,10 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'Submitting…';
 
+      registrationId = crypto.randomUUID();
+
       var payload = {
+        id: registrationId,
         full_name: document.getElementById('regName').value.trim(),
         email: document.getElementById('regEmail').value.trim(),
         phone: document.getElementById('regPhone').value.trim(),
@@ -1018,7 +1021,7 @@
         figma_familiar: document.querySelector('input[name="regFigma"]:checked').value === 'Yes',
       };
 
-      var insertRes = await supabase.from('registrations').insert(payload).select('id').single();
+      var insertRes = await supabase.from('registrations').insert(payload);
       if (insertRes.error) {
         err.textContent = 'Something went wrong: ' + insertRes.error.message;
         err.classList.remove('hidden');
@@ -1026,11 +1029,10 @@
         submitBtn.textContent = 'Submit registration';
         return;
       }
-      registrationId = insertRes.data.id;
 
       var ext = file.name.split('.').pop();
       var path = registrationId + '/receipt.' + ext;
-      var uploadRes = await supabase.storage.from('receipts').upload(path, file, { upsert: true });
+      var uploadRes = await supabase.storage.from('receipts').upload(path, file);
       if (uploadRes.error) {
         err.textContent = 'Receipt upload failed: ' + uploadRes.error.message;
         err.classList.remove('hidden');
